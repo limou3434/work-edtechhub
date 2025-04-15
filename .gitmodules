@@ -1,0 +1,27 @@
+[submodule "work-config-yaml"]
+	path = work-config-yaml
+	url = git@github.com:limou3434/work-config-yaml.git
+[submodule "work-spring-gateway"]
+	path = work-spring-gateway
+	url = git@github.com:limou3434/work-spring-gateway.git
+[submodule "work-smart-cloud"]
+	path = work-smart-cloud
+	url = git@github.com:limou3434/work-smart-cloud.git
+[submodule "work-care-flow"]
+	path = work-care-flow
+	url = git@github.com:limou3434/work-care-flow.git
+[submodule "work-watermark-verifier"]
+	path = work-watermark-verifier
+	url = git@github.com:limou3434/work-watermark-verifier.git
+[submodule "work-integrated-assess"]
+	path = work-integrated-assess
+	url = git@github.com:limou3434/work-integrated-assess.git
+[submodule "work-grad-pick"]
+	path = work-grad-pick
+	url = git@github.com:limou3434/work-grad-pick.git
+[submodule "work-user-centre"]
+	path = work-user-centre
+	url = git@github.com:limou3434/work-user-centre.git
+[submodule "work-blog-website"]
+	path = work-blog-website
+	url = git@github.com:limou3434/work-blog-website.git
