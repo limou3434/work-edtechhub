@@ -1,0 +1,69 @@
+services:
+  # 基本组件
+  ## MySQL
+  work-mysql:
+    image: mysql:8.0.41
+    container_name: work-mysql
+    restart: always
+#    ports: # 等待迁移项目后进行启动
+#      - "3306:3306"
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: MYSQLQwe54188_
+    volumes:
+      - "./work-basic-component/work-mysql/memory/:/var/lib/mysql/" # 持久目录
+      - "./work-basic-component/work-mysql/initialize/:/docker-entrypoint-initdb.d/" # 初始目录
+      - "./work-basic-component/work-mysql/data/:/data" # 导入目录
+    networks:
+      - work-network
+
+  ## Redis
+  work-redis:
+    image: redis:7.4.2
+    container_name: work-redis
+    restart: always
+    ports: # 等待迁移项目后进行启动
+      - "6379:6379"
+    environment:
+      REDIS_PASSWORD: REDISQwe54188_
+    volumes:
+      - "./work-basic-component/work-redis/memory/:/var/lib/redis/" # 持久目录
+      - "./work-basic-component/work-redis/data/:/data" # 导入目录
+    networks:
+      - work-network
+
+  ## Nacos
+  work-nacos:
+    image: nacos/nacos-server:v2.5.1
+    container_name: work-nacos
+    restart: always
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    environment:
+      MODE: standalone # 单机部署模式
+      NACOS_AUTH_TOKEN: NACOSQwe54188_
+      NACOS_AUTH_IDENTITY_KEY: username
+      NACOS_AUTH_IDENTITY_VALUE: root
+      NACOS_AUTH_ENABLE: true # 开启权限系统
+      NACOS_AUTH_USERNAME: root # 设置用户
+      NACOS_AUTH_PASSWORD: NACOSQwe54188_ # 设置密码
+
+  ## Ubuntu
+  work-ubuntu:
+    image: ubuntu:22.04
+    container_name: work-ubuntu
+    restart: always
+    ports:
+      - "2222:2222"
+    tty: true # 必须有这个配置否则无法启动 docker ubuntu
+    stdin_open: true # 必须有这个配置否则无法启动 docker ubuntu
+    volumes:
+      - "./work-basic-component/work-ubuntu/share/:/share" # 持久目录
+    networks:
+      - work-network
+    command: /bin/bash
+
+networks:
+  work-network:
+    name: work-network
