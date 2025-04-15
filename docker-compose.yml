@@ -5,15 +5,14 @@ services:
     image: mysql:8.0.41
     container_name: work-mysql
     restart: always
-#    ports: # 等待迁移项目后进行启动
-#      - "3306:3306"
+    ports: # 等待迁移项目后进行启动
+      - "3306:3306"
     environment:
       TZ: Asia/Shanghai
-      MYSQL_ROOT_PASSWORD: MYSQLQwe54188_
+      MYSQL_ROOT_PASSWORD: Qwe54188_
     volumes:
       - "./work-basic-component/work-mysql/memory/:/var/lib/mysql/" # 持久目录
-      - "./work-basic-component/work-mysql/initialize/:/docker-entrypoint-initdb.d/" # 初始目录
-      - "./work-basic-component/work-mysql/data/:/data" # 导入目录
+      - "./work-basic-component/work-mysql/share/:/share" # 共享目录
     networks:
       - work-network
 
@@ -25,10 +24,10 @@ services:
     ports: # 等待迁移项目后进行启动
       - "6379:6379"
     environment:
-      REDIS_PASSWORD: REDISQwe54188_
+      REDIS_PASSWORD: Qwe54188_
     volumes:
       - "./work-basic-component/work-redis/memory/:/var/lib/redis/" # 持久目录
-      - "./work-basic-component/work-redis/data/:/data" # 导入目录
+      - "./work-basic-component/work-redis/share/:/share" # 共享目录
     networks:
       - work-network
 
@@ -42,7 +41,7 @@ services:
       - "9848:9848"
     environment:
       MODE: standalone # 单机部署模式
-      NACOS_AUTH_TOKEN: NACOSQwe54188_
+      NACOS_AUTH_TOKEN: au3y/JinInzSQu5hxaQQSiyvN3kMcfgOLcFRA4AHrUE= # 使用 openssl rand -base64 32 生成
       NACOS_AUTH_IDENTITY_KEY: username
       NACOS_AUTH_IDENTITY_VALUE: root
       NACOS_AUTH_ENABLE: true # 开启权限系统
@@ -59,10 +58,28 @@ services:
     tty: true # 必须有这个配置否则无法启动 docker ubuntu
     stdin_open: true # 必须有这个配置否则无法启动 docker ubuntu
     volumes:
-      - "./work-basic-component/work-ubuntu/share/:/share" # 持久目录
+      - "./work-basic-component/work-ubuntu/memory/:/memory" # 持久目录
+      - "./work-basic-component/work-redis/share/:/share" # 共享目录
     networks:
       - work-network
     command: /bin/bash
+
+  # work-user-centre
+  work-user-centre:
+    build:
+      context: ./work-user-centre/backend/
+      dockerfile: Dockerfile
+    image: work-user-centre:1.0.0
+    container_name: work-user-centre
+    restart: always
+    ports:
+      - "8001:8000"
+    environment:
+      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
+    networks:
+      - work-network
+    depends_on:
+      - work-mysql
 
 networks:
   work-network:
