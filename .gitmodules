@@ -25,3 +25,6 @@
 [submodule "work-blog-website"]
 	path = work-blog-website
 	url = git@github.com:limou3434/work-blog-website.git
+[submodule "work-tongue-diagnosis"]
+	path = work-tongue-diagnosis
+	url = git@github.com:limou3434/work-tongue-diagnosis.git
