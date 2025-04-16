@@ -65,8 +65,34 @@ services:
       - work-network
 
   ## work-spring-gateway
+#  work-spring-gateway:
+#    build:
+#      context: ./work-spring-gateway/
+#      dockerfile: Dockerfile
+#    image: work-spring-gateway:1.0.0
+#    container_name: work-spring-gateway
+#    restart: always
+#    ports:
+#      - "8001:8000"
+#    environment:
+#      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
+#    networks:
+#      - work-network
 
   ## work-config-yaml
+#  work-config-yaml:
+#    build:
+#      context: ./work-config-yaml/
+#      dockerfile: Dockerfile
+#    image: work-config-yaml:1.0.0
+#    container_name: work-config-yaml
+#    restart: always
+#    ports:
+#      - "8002:8000"
+#    environment:
+#      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
+#    networks:
+#      - work-network
 
   ## work-user-centre
   work-user-centre:
@@ -77,21 +103,101 @@ services:
     container_name: work-user-centre
     restart: always
     ports:
-      - "8001:8000"
+      - "8003:8000"
     environment:
       SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
     networks:
       - work-network
 
+  ## work-tongue-diagnosis
+#  work-tongue-diagnosis:
+#    build:
+#      context: ./work-tongue-diagnosis/
+#      dockerfile: Dockerfile
+#    image: work-user-centre:1.0.0
+#    container_name: work-tongue-diagnosis
+#    restart: always
+#    ports:
+#      - "8004:8000"
+#    environment:
+#      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
+#    networks:
+#      - work-network
+
   ## work-integrated-assess
+#  work-integrated-assess:
+#    build:
+#      context: ./work-integrated-assess/
+#      dockerfile: Dockerfile
+#    image: work-user-centre:1.0.0
+#    container_name: work-integrated-assess
+#    restart: always
+#    ports:
+#      - "8005:8000"
+#    environment:
+#      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
+#    networks:
+#      - work-network
 
   ## work-watermark-verifier
+#  work-watermark-verifier:
+#    build:
+#      context: ./work-watermark-verifier/
+#      dockerfile: Dockerfile
+#    image: work-user-centre:1.0.0
+#    container_name: work-watermark-verifier
+#    restart: always
+#    ports:
+#      - "8006:8000"
+#    environment:
+#      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
+#    networks:
+#      - work-network
 
   ## work-grad-pick
+#  work-grad-pick:
+#    build:
+#      context: ./work-grad-pick/
+#      dockerfile: Dockerfile
+#    image: work-user-centre:1.0.0
+#    container_name: work-grad-pick
+#    restart: always
+#    ports:
+#      - "8007:8000"
+#    environment:
+#      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
+#    networks:
+#      - work-network
 
   ## work-care-flow
+#  work-care-flow:
+#    build:
+#      context: ./work-grad-pick/
+#      dockerfile: Dockerfile
+#    image: work-user-centre:1.0.0
+#    container_name: work-grad-pick
+#    restart: always
+#    ports:
+#      - "8008:8000"
+#    environment:
+#      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
+#    networks:
+#      - work-network
 
   ## work-smart-cloud
+#  work-smart-cloud:
+#    build:
+#      context: ./work-grad-pick/
+#      dockerfile: Dockerfile
+#    image: work-user-centre:1.0.0
+#    container_name: work-grad-pick
+#    restart: always
+#    ports:
+#      - "8009:8000"
+#    environment:
+#      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
+#    networks:
+#      - work-network
 
 # 网络
 networks:
