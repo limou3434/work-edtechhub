@@ -1,5 +1,5 @@
+# 服务
 services:
-  # 基本组件
   ## MySQL
   work-mysql:
     image: mysql:8.0.41
@@ -45,8 +45,8 @@ services:
       NACOS_AUTH_IDENTITY_KEY: username
       NACOS_AUTH_IDENTITY_VALUE: root
       NACOS_AUTH_ENABLE: true # 开启权限系统
-      NACOS_AUTH_USERNAME: root # 设置用户
-      NACOS_AUTH_PASSWORD: NACOSQwe54188_ # 设置密码
+    networks:
+      - work-network
 
   ## Ubuntu
   work-ubuntu:
@@ -60,14 +60,18 @@ services:
     volumes:
       - "./work-basic-component/work-ubuntu/memory/:/memory" # 持久目录
       - "./work-basic-component/work-redis/share/:/share" # 共享目录
+    command: /bin/bash
     networks:
       - work-network
-    command: /bin/bash
 
-  # work-user-centre
+  ## work-spring-gateway
+
+  ## work-config-yaml
+
+  ## work-user-centre
   work-user-centre:
     build:
-      context: ./work-user-centre/backend/
+      context: ./work-user-centre/
       dockerfile: Dockerfile
     image: work-user-centre:1.0.0
     container_name: work-user-centre
@@ -78,9 +82,18 @@ services:
       SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
     networks:
       - work-network
-    depends_on:
-      - work-mysql
 
+  ## work-integrated-assess
+
+  ## work-watermark-verifier
+
+  ## work-grad-pick
+
+  ## work-care-flow
+
+  ## work-smart-cloud
+
+# 网络
 networks:
   work-network:
     name: work-network
