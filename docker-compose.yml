@@ -35,7 +35,7 @@ services:
       - "./work-basic-component/work-redis/share/:/share" # 共享目录
 
   work-ollama:
-    # 安装 ollama 后如果需要支持 GPU 则需要做以下操作：
+    # NOTE: 安装 ollama 后如果需要支持 GPU 则需要做以下操作
     # $ curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey \
     #    | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
     # $ curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list \
@@ -64,6 +64,7 @@ services:
             - capabilities: [ gpu ]
 
   work-nacos:
+    # NOTE: Nacos 貌似没有环境变量可以直接初始化用户密码, 因此最好不要彻底重启 Nacos, 否则权限验证会失效
     image: nacos/nacos-server:v2.5.1
     container_name: work-nacos
     restart: always
@@ -78,10 +79,30 @@ services:
       NACOS_AUTH_IDENTITY_KEY: username
       NACOS_AUTH_IDENTITY_VALUE: root
       NACOS_AUTH_ENABLE: true # 开启权限系统
-      NACOS_USER: nacos
-      NACOS_PASSWORD: Qwe54188_
 
-  ## work-user-centre
+  work-sentinel:
+    # NOTE: 由于官方没有制作为镜像文件因此需要我们自己制作
+    build:
+      context: ./work-basic-component/work-sentinel/
+      dockerfile: Dockerfile
+    image: sentinel:1.8.6
+    restart: always
+    container_name: work-sentinel
+    networks:
+      - work-network
+    ports:
+      - "8131:8131"
+    command:
+      - "java"
+      - "-Dserver.port=8131"
+      - "-Dsentinel.dashboard.auth.username=sentinel"
+      - "-Dsentinel.dashboard.auth.password=Qwe54188_"
+      - "-Dserver.servlet.session.timeout=86400"
+      - "-jar"
+      - "app.jar"
+
+
+
   work-user-centre:
     build:
       context: ./work-user-centre/
@@ -110,4 +131,3 @@ services:
 #      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
 #    networks:
 #      - work-network
-
