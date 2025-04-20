@@ -1,37 +1,68 @@
-# 服务
+# 网络
+networks:
+  work-network:
+    name: work-network
+
+# 服务(服务名称、运行说明、镜像文件、启动方式、网络端口、存储方式、环境变量、启动指令、默认参数、资源控制)
 services:
-  ## MySQL
   work-mysql:
     image: mysql:8.0.41
     container_name: work-mysql
     restart: always
-    ports: # 等待迁移项目后进行启动
+    networks:
+      - work-network
+    ports:
       - "3306:3306"
-    environment:
-      TZ: Asia/Shanghai
-      MYSQL_ROOT_PASSWORD: Qwe54188_
     volumes:
       - "./work-basic-component/work-mysql/memory/:/var/lib/mysql/" # 持久目录
       - "./work-basic-component/work-mysql/share/:/share" # 共享目录
-    networks:
-      - work-network
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: Qwe54188_
 
-  ## Redis
   work-redis:
     image: redis:7.4.2
     container_name: work-redis
     restart: always
-    ports: # 等待迁移项目后进行启动
+    networks:
+      - work-network
+    ports:
       - "6379:6379"
     environment:
       REDIS_PASSWORD: Qwe54188_
     volumes:
       - "./work-basic-component/work-redis/memory/:/var/lib/redis/" # 持久目录
       - "./work-basic-component/work-redis/share/:/share" # 共享目录
+
+  work-ollama:
+    # 安装 ollama 后如果需要支持 GPU 则需要做以下操作：
+    # $ curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey \
+    #    | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+    # $ curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list \
+    #    | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' \
+    #    | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+    # $ sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
+    # $ sudo nvidia-ctk runtime configure --runtime=docker && sudo systemctl restart docker
+    # 然后重新运行集群即可
+    image: ollama/ollama
+    container_name: work-ollama
+    restart: "always"
     networks:
       - work-network
+    ports:
+      - "11434:11434"
+    volumes:
+      - "./work-basic-component/work-ollama:/root/.ollama"
+    entrypoint:
+      - "/bin/ollama"
+    command:
+      - "serve"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [ gpu ]
 
-  ## Nacos
   work-nacos:
     image: nacos/nacos-server:v2.5.1
     container_name: work-nacos
@@ -48,52 +79,6 @@ services:
     networks:
       - work-network
 
-  ## Ubuntu
-  work-ubuntu:
-    image: ubuntu:22.04
-    container_name: work-ubuntu
-    restart: always
-    ports:
-      - "2222:2222"
-    tty: true # 必须有这个配置否则无法启动 docker ubuntu
-    stdin_open: true # 必须有这个配置否则无法启动 docker ubuntu
-    volumes:
-      - "./work-basic-component/work-ubuntu/memory/:/memory" # 持久目录
-      - "./work-basic-component/work-redis/share/:/share" # 共享目录
-    command: /bin/bash
-    networks:
-      - work-network
-
-  ## work-spring-gateway
-#  work-spring-gateway:
-#    build:
-#      context: ./work-spring-gateway/
-#      dockerfile: Dockerfile
-#    image: work-spring-gateway:1.0.0
-#    container_name: work-spring-gateway
-#    restart: always
-#    ports:
-#      - "8001:8000"
-#    environment:
-#      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
-#    networks:
-#      - work-network
-
-  ## work-config-yaml
-#  work-config-yaml:
-#    build:
-#      context: ./work-config-yaml/
-#      dockerfile: Dockerfile
-#    image: work-config-yaml:1.0.0
-#    container_name: work-config-yaml
-#    restart: always
-#    ports:
-#      - "8002:8000"
-#    environment:
-#      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
-#    networks:
-#      - work-network
-
   ## work-user-centre
   work-user-centre:
     build:
@@ -108,81 +93,6 @@ services:
       SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
     networks:
       - work-network
-
-  ## work-tongue-diagnosis
-#  work-tongue-diagnosis:
-#    build:
-#      context: ./work-tongue-diagnosis/
-#      dockerfile: Dockerfile
-#    image: work-user-centre:1.0.0
-#    container_name: work-tongue-diagnosis
-#    restart: always
-#    ports:
-#      - "8004:8000"
-#    environment:
-#      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
-#    networks:
-#      - work-network
-
-  ## work-integrated-assess
-#  work-integrated-assess:
-#    build:
-#      context: ./work-integrated-assess/
-#      dockerfile: Dockerfile
-#    image: work-user-centre:1.0.0
-#    container_name: work-integrated-assess
-#    restart: always
-#    ports:
-#      - "8005:8000"
-#    environment:
-#      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
-#    networks:
-#      - work-network
-
-  ## work-watermark-verifier
-#  work-watermark-verifier:
-#    build:
-#      context: ./work-watermark-verifier/
-#      dockerfile: Dockerfile
-#    image: work-user-centre:1.0.0
-#    container_name: work-watermark-verifier
-#    restart: always
-#    ports:
-#      - "8006:8000"
-#    environment:
-#      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
-#    networks:
-#      - work-network
-
-  ## work-grad-pick
-#  work-grad-pick:
-#    build:
-#      context: ./work-grad-pick/
-#      dockerfile: Dockerfile
-#    image: work-user-centre:1.0.0
-#    container_name: work-grad-pick
-#    restart: always
-#    ports:
-#      - "8007:8000"
-#    environment:
-#      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
-#    networks:
-#      - work-network
-
-  ## work-care-flow
-#  work-care-flow:
-#    build:
-#      context: ./work-grad-pick/
-#      dockerfile: Dockerfile
-#    image: work-user-centre:1.0.0
-#    container_name: work-grad-pick
-#    restart: always
-#    ports:
-#      - "8008:8000"
-#    environment:
-#      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
-#    networks:
-#      - work-network
 
   ## work-smart-cloud
 #  work-smart-cloud:
@@ -199,7 +109,3 @@ services:
 #    networks:
 #      - work-network
 
-# 网络
-networks:
-  work-network:
-    name: work-network
