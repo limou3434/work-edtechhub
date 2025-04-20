@@ -3,7 +3,7 @@ networks:
   work-network:
     name: work-network
 
-# 服务(服务名称、运行说明、镜像文件、容器名称、启动方式、网络端口、存储方式、环境变量、启动指令、默认参数、资源控制)
+# 服务(服务名称、运行说明、镜像文件、容器名称、启动方式、网络端口、存储方式、环境变量、启动指令、设主程序、默认参数、资源控制)
 services:
   work-mysql:
     image: mysql:8.0.41
@@ -29,7 +29,7 @@ services:
     ports:
       - "6379:6379"
     environment:
-      REDIS_PASSWORD: Qwe54188_
+      REDIS_PASSWORD: Qwe54188_ # 这个设置好像没有什么用
     volumes:
       - "./work-basic-component/work-redis/memory/:/var/lib/redis/" # 持久目录
       - "./work-basic-component/work-redis/share/:/share" # 共享目录
@@ -101,7 +101,46 @@ services:
       - "-jar"
       - "app.jar"
 
+  work-elasticsearch:
+    # NOTE: ES 的启动及其损耗内存, 因此对其做了限制, 此外由于默认不支持中文, 还需要覆盖内部的配置文件, 以及下载额外的中文分词器插件
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.28
+    container_name: work-elasticsearch
+    restart: "always"
+    networks:
+      - work-network
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=Qwe54188_
+      - ES_JAVA_OPTS=-Xms4g -Xmx4g
+      - ELASTIC_CONTAINER=true
+    entrypoint:
+      - "sh"
+      - "-c"
+      - "
+        \  if [ ! -d /usr/share/elasticsearch/plugins/analysis-ik ]; then
+        \    echo 'Installing IK plugin...';
+        \    elasticsearch-plugin install --batch https://release.infinilabs.com/analysis-ik/stable/elasticsearch-analysis-ik-7.17.28.zip;
+        \  fi;
+        \  exec docker-entrypoint.sh\n"
 
+  work-kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.28
+    container_name: work-kibana
+    restart: always
+    networks:
+      - work-network
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://work-elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=Qwe54188_
+      - ELASTIC_CONTAINER=true
+    volumes:
+      - "./work-basic-component/work-kibana/kibana.yml:/usr/share/kibana/config/kibana.yml"
 
   work-user-centre:
     build:
