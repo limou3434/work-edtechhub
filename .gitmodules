@@ -28,3 +28,6 @@
 [submodule "work-tongue-diagnosis"]
 	path = work-tongue-diagnosis
 	url = git@github.com:limou3434/work-tongue-diagnosis.git
+[submodule "work-multilingual-ai"]
+	path = work-multilingual-ai
+	url = ./work-multilingual-ai
