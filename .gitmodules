@@ -34,3 +34,6 @@
 [submodule "work-massive-likes"]
 	path = work-massive-likes
 	url = git@github.com:limou3434/work-massive-likes.git
+[submodule "work-question-bank"]
+	path = work-question-bank
+	url = ./work-question-bank
