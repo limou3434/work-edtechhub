@@ -2,5 +2,8 @@
 work-basic-component/work-mysql/
 work-basic-component/work-redis/
 work-basic-component/work-ollama/
-
+work-basic-component/work-etcd/
+work-basic-component/work-hotkey/LICENSE
+work-basic-component/work-hotkey/README.md
+work-basic-component/work-hotkey/README.en.md
 

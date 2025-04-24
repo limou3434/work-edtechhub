@@ -20,6 +20,40 @@ services:
       TZ: Asia/Shanghai
       MYSQL_ROOT_PASSWORD: Qwe54188_
 
+  work-etcd:
+    # NOTE: 这里启动参数有点多稍微解读一下
+    # --name etcd0 --> 本节点名称
+    # --data-dir /etcd-data --> 持久化目录
+    # --initial-cluster-token etcd-cluster-1 --> 标识某个 etcd 集群的唯一 token, 主要用于防止不同集群之间的数据混淆或冲突
+    # --initial-cluster-state new --> 表示在 etcd 启动时, 集群的状态是新建(如果使用 existing 则是加入到集群中, 会同步集群的信息)
+    # --listen-client-urls --> 客户端与 etcd 通信
+    # --advertise-client-urls --> 客户端与 etcd 通信
+    # --listen-peer-urls --> 多节点部署用到
+    # --initial-advertise-peer-urls --> 多节点部署用到
+    # --initial-cluster --> 指定 etcd 集群中已有的节点
+    image: gcr.io/etcd-development/etcd:v3.6.0-rc.4
+    container_name: work-etcd
+    restart: always
+    networks:
+      - work-network
+    ports:
+      - "2379:2379" # 客户端通信端口
+      - "2380:2380" # 节点间通信端口
+    volumes:
+      - "./work-basic-component/work-etcd/etcd-data/:/etcd-data/"
+    command: >
+      /usr/local/bin/etcd
+      --name etcd0
+      --data-dir /etcd-data
+      --initial-cluster-token etcd-cluster-1
+      --initial-cluster-state new
+      --listen-client-urls http://0.0.0.0:2379
+      --advertise-client-urls http://0.0.0.0:2379
+      --listen-peer-urls http://0.0.0.0:2380
+      --initial-advertise-peer-urls http://0.0.0.0:2380
+      --initial-cluster etcd0=http://0.0.0.0:2380
+
+
   work-redis:
     image: redis:7.4.2
     container_name: work-redis
@@ -159,6 +193,36 @@ services:
       - "./work-basic-component/work-alist/memory/:/opt/alist/data"
       - "./work-basic-component/work-alist/share/:/share"
 
+  work-hkworker:
+    # NOTE: 由于官方没有制作为镜像文件因此需要我们自己制作, 而且配置过程也很粗糙
+    build:
+      context: ./work-basic-component/work-hotkey/worker/
+      dockerfile: Dockerfile
+    image: work-hkworker:1.0.0
+    container_name: work-hkworker
+    restart: always
+    networks:
+      - work-network
+    ports:
+      - "8111:8111"
+    environment:
+      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
+
+  work-hkdashboard:
+    # NOTE: 由于官方没有制作为镜像文件因此需要我们自己制作, 而且配置过程也很粗糙
+    build:
+      context: ./work-basic-component/work-hotkey/dashboard/
+      dockerfile: Dockerfile
+    image: work-hkdashboard:1.0.0
+    container_name: work-hkdashboard
+    restart: always
+    networks:
+      - work-network
+    ports:
+      - "8121:8121"
+    environment:
+      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
+
   work-user-centre:
     build:
       context: ./work-user-centre/
@@ -166,9 +230,9 @@ services:
     image: work-user-centre:1.0.0
     container_name: work-user-centre
     restart: always
+    networks:
+      - work-network
     ports:
       - "8003:8000"
     environment:
       SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
-    networks:
-      - work-network

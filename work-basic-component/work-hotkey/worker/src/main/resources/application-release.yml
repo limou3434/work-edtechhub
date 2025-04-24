@@ -1,0 +1,4 @@
+etcd:
+  server: ${etcdServer:http://work-etcd:2379} #etcd的地址，重要！！！
+server:
+  address: 0.0.0.0
