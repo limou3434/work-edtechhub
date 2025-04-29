@@ -223,6 +223,17 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
 
+  work-pulsar:
+    image: apachepulsar/pulsar:4.0.3
+    container_name: work-pulsar
+    restart: always
+    networks:
+      - work-network
+    ports:
+      - "6650:6650"
+      - "8080:8080"
+    command: bin/pulsar standalone
+
   work-user-centre:
     build:
       context: ./work-user-centre/
