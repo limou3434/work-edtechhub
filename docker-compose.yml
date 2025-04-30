@@ -53,6 +53,7 @@ services:
       --initial-advertise-peer-urls http://0.0.0.0:2380
       --initial-cluster etcd0=http://0.0.0.0:2380
 
+
   work-tidb:
     image: pingcap/tidb
     container_name: work-tidb
@@ -75,6 +76,40 @@ services:
     volumes:
       - "./work-basic-component/work-redis/memory/:/var/lib/redis/" # 持久目录
       - "./work-basic-component/work-redis/share/:/share" # 共享目录
+
+  work-pulsar:
+    image: apachepulsar/pulsar:4.0.3
+    container_name: work-pulsar
+    restart: always
+    networks:
+      - work-network
+    ports:
+      - "6650:6650"
+      - "8080:8080"
+    command: bin/pulsar standalone
+
+  # work-minio:
+
+  work-sentinel:
+    # NOTE: 由于官方没有制作为镜像文件因此需要我们自己制作
+    build:
+      context: ./work-basic-component/work-sentinel/
+      dockerfile: Dockerfile
+    image: sentinel:1.8.6
+    restart: always
+    container_name: work-sentinel
+    networks:
+      - work-network
+    ports:
+      - "8131:8131"
+    command:
+      - "java"
+      - "-Dserver.port=8131"
+      - "-Dsentinel.dashboard.auth.username=sentinel"
+      - "-Dsentinel.dashboard.auth.password=Qwe54188_"
+      - "-Dserver.servlet.session.timeout=86400"
+      - "-jar"
+      - "app.jar"
 
   work-ollama:
     # NOTE: 安装 ollama 后如果需要支持 GPU 则需要做以下操作
@@ -121,27 +156,6 @@ services:
       NACOS_AUTH_IDENTITY_KEY: username
       NACOS_AUTH_IDENTITY_VALUE: root
       NACOS_AUTH_ENABLE: true # 开启权限系统
-
-  work-sentinel:
-    # NOTE: 由于官方没有制作为镜像文件因此需要我们自己制作
-    build:
-      context: ./work-basic-component/work-sentinel/
-      dockerfile: Dockerfile
-    image: sentinel:1.8.6
-    restart: always
-    container_name: work-sentinel
-    networks:
-      - work-network
-    ports:
-      - "8131:8131"
-    command:
-      - "java"
-      - "-Dserver.port=8131"
-      - "-Dsentinel.dashboard.auth.username=sentinel"
-      - "-Dsentinel.dashboard.auth.password=Qwe54188_"
-      - "-Dserver.servlet.session.timeout=86400"
-      - "-jar"
-      - "app.jar"
 
   work-elasticsearch:
     # NOTE: ES 的启动及其损耗内存, 因此对其做了限制, 此外由于默认不支持中文, 还需要覆盖内部的配置文件, 以及下载额外的中文分词器插件
@@ -230,17 +244,6 @@ services:
       - "8121:8121"
     environment:
       SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
-
-  work-pulsar:
-    image: apachepulsar/pulsar:4.0.3
-    container_name: work-pulsar
-    restart: always
-    networks:
-      - work-network
-    ports:
-      - "6650:6650"
-      - "8080:8080"
-    command: bin/pulsar standalone
 
   work-user-centre:
     build:
