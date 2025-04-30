@@ -53,6 +53,14 @@ services:
       --initial-advertise-peer-urls http://0.0.0.0:2380
       --initial-cluster etcd0=http://0.0.0.0:2380
 
+  work-tidb:
+    image: pingcap/tidb
+    container_name: work-tidb
+    restart: always
+    networks:
+      - work-network
+    ports:
+      - "4000:4000"
 
   work-redis:
     image: redis:7.4.2
@@ -245,5 +253,19 @@ services:
       - work-network
     ports:
       - "8003:8000"
+    environment:
+      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
+
+  work-massive-likes:
+    build:
+      context: ./work-massive-likes/
+      dockerfile: Dockerfile
+    image: work-massive-like:1.0.0
+    container_name: work-massive-likes
+    restart: always
+    networks:
+      - work-network
+    ports:
+      - "8004:8000"
     environment:
       SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
