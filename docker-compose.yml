@@ -272,3 +272,17 @@ services:
       - "8004:8000"
     environment:
       SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
+
+  work-question-bank:
+    build:
+      context: ./work-question-bank/
+      dockerfile: Dockerfile
+    image: work-question-bank:1.0.0
+    container_name: work-question-bank
+    restart: always
+    networks:
+      - work-network
+    ports:
+      - "8005:8000"
+    environment:
+      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
