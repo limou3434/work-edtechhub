@@ -1,4 +1,10 @@
-.idea
+**.idea/
+**.next/
+**node_modules/
+**target/
+**dist/
+**.env
+**access.log
 work-basic-component/work-mysql/
 work-basic-component/work-redis/
 work-basic-component/work-ollama/
