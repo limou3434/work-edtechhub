@@ -35,7 +35,7 @@ services:
       - "./work-basic-component/work-mysql/share/:/share" # 共享目录
     environment:
       TZ: Asia/Shanghai
-      MYSQL_ROOT_PASSWORD: Qwe54188_
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
 
   work-etcd:
     # NOTE: 这里启动参数有点多稍微解读一下
@@ -70,8 +70,6 @@ services:
       --initial-advertise-peer-urls http://0.0.0.0:2380
       --initial-cluster etcd0=http://0.0.0.0:2380
 
-
-
   work-tidb:
     image: pingcap/tidb
     container_name: work-tidb
@@ -89,11 +87,10 @@ services:
       - work-network
     ports:
       - "6379:6379"
-    environment:
-      REDIS_PASSWORD: Qwe54188_ # 这个设置好像没有什么用
     volumes:
       - "./work-basic-component/work-redis/memory/:/var/lib/redis/" # 持久目录
       - "./work-basic-component/work-redis/share/:/share" # 共享目录
+    command: /bin/sh -c "redis-server --requirepass $REDIS_ROOT_PASSWORD"
 
   work-pulsar:
     image: apachepulsar/pulsar:4.0.3
