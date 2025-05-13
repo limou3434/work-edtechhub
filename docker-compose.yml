@@ -1,3 +1,5 @@
+# 如果需要快速把 docker run 指令转化为 docker compose 配置可以考虑使用这个插件 https://plugins.jetbrains.com/plugin/23108-docker-run-command-to-compose-converter
+
 # 网络
 networks:
   work-network:
@@ -5,6 +7,21 @@ networks:
 
 # 服务(服务名称、运行说明、镜像文件、容器名称、启动方式、网络端口、存储方式、环境变量、启动指令、设主程序、默认参数、资源控制)
 services:
+  work-caddy:
+    # NOTE: 整个公司项目的网关层, 所有的请求都会引导到这里在分流给其他服务
+    image: caddy:2.10.0
+    container_name: work-caddy
+    restart: always
+    networks:
+      - work-network
+    ports:
+      - "80:80"
+      - "443:443"
+      - "2019:2019"
+    working_dir: /etc/caddy/
+    volumes:
+      - "./work-basic-component/work-caddy/Caddyfile:/etc/caddy/Caddyfile" # 代理配置文件
+
   work-mysql:
     image: mysql:8.0.41
     container_name: work-mysql
@@ -52,6 +69,7 @@ services:
       --listen-peer-urls http://0.0.0.0:2380
       --initial-advertise-peer-urls http://0.0.0.0:2380
       --initial-cluster etcd0=http://0.0.0.0:2380
+
 
 
   work-tidb:
@@ -228,7 +246,7 @@ services:
     ports:
       - "8111:8111"
     environment:
-      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
 
   work-hkdashboard:
     # NOTE: 由于官方没有制作为镜像文件因此需要我们自己制作, 而且配置过程也很粗糙
@@ -243,19 +261,15 @@ services:
     ports:
       - "8121:8121"
     environment:
-      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
 
-  # !!!!
-  work-caddy:
-    image: caddy:2.10.0
-    container_name: work-caddy
+  work-curl:
+    image: curlimages/curl
+    container_name: work-curl
     restart: always
     networks:
       - work-network
-    ports:
-      - "80:80"
-      - "443:443"
-      - "2019:2019"
+    command: tail -f /dev/null
 
   work-user-centre:
     build:
@@ -269,7 +283,7 @@ services:
     ports:
       - "8003:8000"
     environment:
-      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
 
   work-massive-likes:
     build:
@@ -283,7 +297,7 @@ services:
     ports:
       - "8004:8000"
     environment:
-      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
 
   work-question-bank:
     build:
@@ -297,8 +311,28 @@ services:
     ports:
       - "8005:8000"
     environment:
-      SPRING_PROFILES_ACTIVE: release # 环境变量(可以通过 SPRING_PROFILES_ACTIVE=develop | release | production 修改运行环境的配置)
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
 
+  work-collaborative-images:
+    build:
+      context: ./work-collaborative-images/
+      dockerfile: Dockerfile
+    image: work-collaborative-images:1.0.0
+    container_name: work-collaborative-images
+    restart: always
+    networks:
+      - work-network
+    ports:
+      - "8006:8000"
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      COS_CLIENT_HOST: ${COS_CLIENT_HOST}
+      COS_CLIENT_SECRET_ID: ${COS_CLIENT_SECRET_ID}
+      COS_CLIENT_SECRET_KEY: ${COS_CLIENT_SECRET_KEY}
+      COS_CLIENT_REGION: ${COS_CLIENT_REGION}
+      COS_CLIENT_BUCKET: ${COS_CLIENT_BUCKET}
+
+  # !!!
   work-question-bank-frontend:
     build:
       context: ./work-question-bank/frontend/
@@ -312,3 +346,15 @@ services:
       - "3005:3000"
     environment:
       HOSTNAME: 0.0.0.0
+
+  work-collaborative-images-client:
+    build:
+      context: ./work-collaborative-images/client/work-collaborative-images-vue/
+      dockerfile: Dockerfile
+    image: work-collaborative-images-client:1.0.0
+    container_name: work-collaborative-images-client
+    restart: always
+    networks:
+      - work-network
+    ports:
+      - "3006:3000"
