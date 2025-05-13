@@ -5,7 +5,8 @@
 **dist/
 **.env
 **access.log
-work-basic-component/work-mysql/
+work-basic-component/work-mysql/memory/
+work-basic-component/work-mysql/share/
 work-basic-component/work-redis/
 work-basic-component/work-ollama/
 work-basic-component/work-etcd/

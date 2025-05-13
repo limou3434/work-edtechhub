@@ -23,6 +23,7 @@ services:
       - "./work-basic-component/work-caddy/Caddyfile:/etc/caddy/Caddyfile" # 代理配置文件
 
   work-mysql:
+    # NOTE:
     image: mysql:8.0.41
     container_name: work-mysql
     restart: always
@@ -33,9 +34,11 @@ services:
     volumes:
       - "./work-basic-component/work-mysql/memory/:/var/lib/mysql/" # 持久目录
       - "./work-basic-component/work-mysql/share/:/share" # 共享目录
+      - "./work-basic-component/work-mysql/init/:/docker-entrypoint-initdb.d/" # 共享目录
     environment:
       TZ: Asia/Shanghai
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
 
   work-etcd:
     # NOTE: 这里启动参数有点多稍微解读一下
