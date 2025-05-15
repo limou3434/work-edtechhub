@@ -7,6 +7,7 @@ networks:
 
 # 服务(服务名称、运行说明、镜像文件、容器名称、启动方式、网络端口、存储方式、环境变量、启动指令、设主程序、默认参数、资源控制)
 services:
+  ## 基础服务
   work-caddy:
     # NOTE: 整个公司项目的网关层, 所有的请求都会引导到这里在分流给其他服务
     image: caddy:2.10.0
@@ -21,6 +22,8 @@ services:
     working_dir: /etc/caddy/
     volumes:
       - "./work-basic-component/work-caddy/Caddyfile:/etc/caddy/Caddyfile" # 代理配置文件
+    environment:
+      WCI_SITE_ADDRESS: ${WCI_SITE_ADDRESS}
 
   work-mysql:
     # NOTE:
@@ -37,20 +40,10 @@ services:
       - "./work-basic-component/work-mysql/init/:/docker-entrypoint-initdb.d/" # 共享目录
     environment:
       TZ: Asia/Shanghai
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-
+      MYSQL_ROOT_PASSWORD: ${WORK_MYSQL_PASSWD}
 
   work-etcd:
-    # NOTE: 这里启动参数有点多稍微解读一下
-    # --name etcd0 --> 本节点名称
-    # --data-dir /etcd-data --> 持久化目录
-    # --initial-cluster-token etcd-cluster-1 --> 标识某个 etcd 集群的唯一 token, 主要用于防止不同集群之间的数据混淆或冲突
-    # --initial-cluster-state new --> 表示在 etcd 启动时, 集群的状态是新建(如果使用 existing 则是加入到集群中, 会同步集群的信息)
-    # --listen-client-urls --> 客户端与 etcd 通信
-    # --advertise-client-urls --> 客户端与 etcd 通信
-    # --listen-peer-urls --> 多节点部署用到
-    # --initial-advertise-peer-urls --> 多节点部署用到
-    # --initial-cluster --> 指定 etcd 集群中已有的节点
+    # 等待设置密码
     image: gcr.io/etcd-development/etcd:v3.6.0-rc.4
     container_name: work-etcd
     restart: always
@@ -61,19 +54,20 @@ services:
       - "2380:2380" # 节点间通信端口
     volumes:
       - "./work-basic-component/work-etcd/etcd-data/:/etcd-data/"
-    command: >
-      /usr/local/bin/etcd
-      --name etcd0
-      --data-dir /etcd-data
-      --initial-cluster-token etcd-cluster-1
-      --initial-cluster-state new
-      --listen-client-urls http://0.0.0.0:2379
-      --advertise-client-urls http://0.0.0.0:2379
-      --listen-peer-urls http://0.0.0.0:2380
-      --initial-advertise-peer-urls http://0.0.0.0:2380
-      --initial-cluster etcd0=http://0.0.0.0:2380
+    command:
+      - /usr/local/bin/etcd
+      - --name=etcd0 # 本节点名称
+      - --data-dir=/etcd-data # 持久化目录
+      - --initial-cluster-token=etcd-cluster-1 # 标识某个 etcd 集群的唯一 token, 主要用于防止不同集群之间的数据混淆或冲突
+      - --initial-cluster-state=new # 表示在 etcd 启动时, 集群的状态是新建(如果使用 existing 则是加入到集群中, 会同步集群的信息)
+      - --listen-client-urls=http://0.0.0.0:2379 # 客户端与 etcd 通信
+      - --advertise-client-urls=http://0.0.0.0:2379 # 客户端与 etcd 通信
+      - --listen-peer-urls=http://0.0.0.0:2380 # 多节点部署用到
+      - --initial-advertise-peer-urls=http://0.0.0.0:2380 # 多节点部署用到
+      - --initial-cluster=etcd0=http://0.0.0.0:2380 # 指定 etcd 集群中已有的节点
 
   work-tidb:
+    # 等待设置密码
     image: pingcap/tidb
     container_name: work-tidb
     restart: always
@@ -81,6 +75,7 @@ services:
       - work-network
     ports:
       - "4000:4000"
+      - "10080:10080"
 
   work-redis:
     image: redis:7.4.2
@@ -93,7 +88,10 @@ services:
     volumes:
       - "./work-basic-component/work-redis/memory/:/var/lib/redis/" # 持久目录
       - "./work-basic-component/work-redis/share/:/share" # 共享目录
-    command: /bin/sh -c "redis-server --requirepass $REDIS_ROOT_PASSWORD"
+    command:
+      - /bin/sh
+      - -c
+      - redis-server --requirepass $WORK_REDIS_PASSWD
 
   work-pulsar:
     image: apachepulsar/pulsar:4.0.3
@@ -104,9 +102,9 @@ services:
     ports:
       - "6650:6650"
       - "8080:8080"
-    command: bin/pulsar standalone
-
-  # work-minio:
+    command:
+     - bin/pulsar
+     - standalone
 
   work-sentinel:
     # NOTE: 由于官方没有制作为镜像文件因此需要我们自己制作
@@ -121,16 +119,11 @@ services:
     ports:
       - "8131:8131"
     command:
-      - "java"
-      - "-Dserver.port=8131"
-      - "-Dsentinel.dashboard.auth.username=sentinel"
-      - "-Dsentinel.dashboard.auth.password=Qwe54188_"
-      - "-Dserver.servlet.session.timeout=86400"
-      - "-jar"
-      - "app.jar"
+      - /bin/bash
+      - -c
+      - java -Dserver.port=8131 -Dsentinel.dashboard.auth.username=sentinel -Dsentinel.dashboard.auth.password=$WORK_SENTINEL_PASSWD -Dserver.servlet.session.timeout=86400 -jar app.jar
 
   work-ollama:
-    # NOTE: 安装 ollama 后如果需要支持 GPU 则需要做以下操作
     # $ curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey \
     #    | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
     # $ curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list \
@@ -159,7 +152,7 @@ services:
             - capabilities: [ gpu ]
 
   work-nacos:
-    # NOTE: Nacos 貌似没有环境变量可以直接初始化用户密码, 因此最好不要彻底重启 Nacos, 否则权限验证会失效
+    # Nacos 貌似没有环境变量可以直接初始化用户密码, 因此最好不要彻底重启 Nacos, 否则权限验证会失效
     image: nacos/nacos-server:v2.5.1
     container_name: work-nacos
     restart: always
@@ -176,7 +169,7 @@ services:
       NACOS_AUTH_ENABLE: true # 开启权限系统
 
   work-elasticsearch:
-    # NOTE: ES 的启动及其损耗内存, 因此对其做了限制, 此外由于默认不支持中文, 还需要覆盖内部的配置文件, 以及下载额外的中文分词器插件
+    # ES 的启动极其损耗内存, 因此对其做了限制, 此外由于默认不支持中文, 还需要覆盖内部的配置文件, 以及下载额外的中文分词器插件
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.28
     container_name: work-elasticsearch
     restart: "always"
@@ -187,7 +180,7 @@ services:
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=true
-      - ELASTIC_PASSWORD=Qwe54188_
+      - ELASTIC_PASSWORD=${WORK_ELASTIC_PASSWD}
       - ES_JAVA_OPTS=-Xms4g -Xmx4g
       - ELASTIC_CONTAINER=true
     entrypoint:
@@ -211,13 +204,13 @@ services:
     environment:
       - ELASTICSEARCH_HOSTS=http://work-elasticsearch:9200
       - ELASTICSEARCH_USERNAME=elastic
-      - ELASTICSEARCH_PASSWORD=Qwe54188_
+      - ELASTICSEARCH_PASSWORD=${WORK_KIBANA_PASSWD}
       - ELASTIC_CONTAINER=true
     volumes:
       - "./work-basic-component/work-kibana/kibana.yml:/usr/share/kibana/config/kibana.yml"
 
   work-alist:
-    # NOTE: 由于官方强制要求密码重置, 因此每次新的启动管理员都需要重置密码 docker exec -it work-alist ./alist admin set Qwe54188_
+    # 由于官方强制要求密码重置, 因此每次新的启动管理员都需要重置密码 docker exec -it work-alist ./alist admin set Qwe54188_
     image: 'xhofe/alist:beta'
     container_name: work-alist
     restart: always
@@ -234,7 +227,7 @@ services:
       - "./work-basic-component/work-alist/share/:/share"
 
   work-hkworker:
-    # NOTE: 由于官方没有制作为镜像文件因此需要我们自己制作, 而且配置过程也很粗糙
+    # 由于官方没有制作为镜像文件因此需要我们自己制作, 而且配置过程也很粗糙
     build:
       context: ./work-basic-component/work-hotkey/worker/
       dockerfile: Dockerfile
@@ -246,10 +239,10 @@ services:
     ports:
       - "8111:8111"
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_PROFILES_ACTIVE: release
 
   work-hkdashboard:
-    # NOTE: 由于官方没有制作为镜像文件因此需要我们自己制作, 而且配置过程也很粗糙
+    # 由于官方没有制作为镜像文件因此需要我们自己制作, 而且配置过程也很粗糙
     build:
       context: ./work-basic-component/work-hotkey/dashboard/
       dockerfile: Dockerfile
@@ -261,9 +254,10 @@ services:
     ports:
       - "8121:8121"
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_PROFILES_ACTIVE: release
 
   work-curl:
+    # 这个镜像用于调试容器之间网路情况
     image: curlimages/curl
     container_name: work-curl
     restart: always
@@ -271,6 +265,7 @@ services:
       - work-network
     command: tail -f /dev/null
 
+  ## 业务服务
   work-user-centre:
     build:
       context: ./work-user-centre/
@@ -332,21 +327,7 @@ services:
       COS_CLIENT_REGION: ${COS_CLIENT_REGION}
       COS_CLIENT_BUCKET: ${COS_CLIENT_BUCKET}
 
-  # !!!
-  work-question-bank-frontend:
-    build:
-      context: ./work-question-bank/frontend/
-      dockerfile: Dockerfile
-    image: work-question-bank-frontend:1.0.0
-    container_name: work-question-bank-frontend
-    restart: always
-    networks:
-      - work-network
-    ports:
-      - "3005:3000"
-    environment:
-      HOSTNAME: 0.0.0.0
-
+  ## 前端服务
   work-collaborative-images-client:
     build:
       context: ./work-collaborative-images/client/work-collaborative-images-vue/

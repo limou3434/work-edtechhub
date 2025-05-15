@@ -1,18 +1,21 @@
 # 实时更新配置建议使用 sudo docker compose down work-caddy && sudo docker compose up -d --build work-caddy
-# 生产环境使用子域名来完成不同项目的部署, 测试环境直接在下面分别独占测试
-:80 {
-    # 前端服务
-    reverse_proxy http://work-collaborative-images-client:3000
 
-    # 接口服务
-    handle_path /work_collaborative_images_api/* {
-        reverse_proxy http://work-collaborative-images:8000
-    }
+{$WCI_SITE_ADDRESS} { # 部署域名(生产环境替换)
+    # 域名证书(生产环境打开)
+    # tls /etc/caddy/ssl/edtechhub.com.cn_bundle.crt /etc/caddy/ssl/edtechhub.com.cn.key
 
     # 日志服务
     log {
         level DEBUG
         output file ./log/access.log
         format json
+    }
+
+    # 前端服务
+    reverse_proxy http://work-collaborative-images-client:3000
+
+    # 接口服务
+    handle_path /work_collaborative_images_api/* {
+        reverse_proxy http://work-collaborative-images:8000
     }
 }
