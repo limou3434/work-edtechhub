@@ -37,7 +37,7 @@ services:
     volumes:
       - "./work-basic-component/work-mysql/memory/:/var/lib/mysql/" # 持久目录
       - "./work-basic-component/work-mysql/share/:/share" # 共享目录
-      - "./work-basic-component/work-mysql/init/:/docker-entrypoint-initdb.d/" # 共享目录
+      - "./work-basic-component/work-mysql/init/:/docker-entrypoint-initdb.d/" # 初始目录
     environment:
       TZ: Asia/Shanghai
       MYSQL_ROOT_PASSWORD: ${WORK_MYSQL_PASSWD}
@@ -272,7 +272,7 @@ services:
       dockerfile: Dockerfile
     image: work-user-centre:1.0.0
     container_name: work-user-centre
-    restart: always
+    restart: no
     networks:
       - work-network
     ports:
@@ -286,7 +286,7 @@ services:
       dockerfile: Dockerfile
     image: work-massive-like:1.0.0
     container_name: work-massive-likes
-    restart: always
+    restart: no
     networks:
       - work-network
     ports:
@@ -300,7 +300,7 @@ services:
       dockerfile: Dockerfile
     image: work-question-bank:1.0.0
     container_name: work-question-bank
-    restart: always
+    restart: no
     networks:
       - work-network
     ports:
@@ -314,7 +314,7 @@ services:
       dockerfile: Dockerfile
     image: work-collaborative-images:1.0.0
     container_name: work-collaborative-images
-    restart: always
+    restart: no
     networks:
       - work-network
     ports:
@@ -334,7 +334,7 @@ services:
       dockerfile: Dockerfile
     image: work-collaborative-images-client:1.0.0
     container_name: work-collaborative-images-client
-    restart: always
+    restart: no
     networks:
       - work-network
     ports:
