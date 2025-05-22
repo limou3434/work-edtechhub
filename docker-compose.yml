@@ -266,6 +266,22 @@ services:
     command: tail -f /dev/null
 
   ## 业务服务
+  work-user-server:
+    build:
+      context: ./work-user-server/work-user-service
+      dockerfile: Dockerfile
+    image: work-user-server:1.0.0
+    container_name: work-user-server
+    restart: no
+    networks:
+      - work-network
+    ports:
+      - "5001:5000" # 运行端口
+      - "50051:50050" # 测试端口(curl --header "Content-Type: application/json" http://127.0.0.1:50051/cn.com.edtechhub.workuserserver.api.UserService/test/)
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+
+  ## 公司项目
   work-user-centre:
     build:
       context: ./work-user-centre/
