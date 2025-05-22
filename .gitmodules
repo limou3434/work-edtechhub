@@ -40,3 +40,6 @@
 [submodule "work-collaborative-images"]
 	path = work-collaborative-images
 	url = https://github.com/limou3434/work-collaborative-images.git
+[submodule "work-user-server"]
+	path = work-user-server
+	url = ./work-user-server
