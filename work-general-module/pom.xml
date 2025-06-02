@@ -20,16 +20,23 @@
 
     <!-- 标识描述 -->
     <groupId>cn.com.edtechhub</groupId>
-    <artifactId>work-general-module</artifactId>
+    <artifactId>work-general-module3</artifactId>
     <version>1.0.0</version>
+
+    <!-- 继承描述 -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.3</version>
+        <relativePath/>
+    </parent>
 
     <!-- 版本描述 -->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>11</java.version>
-        <springboot.version>2.7.6</springboot.version>
-        <springbootaop.version>5.3.24</springbootaop.version>
+        <java.version>17</java.version>
+        <dubbo.version>3.3.2</dubbo.version>
         <lombok.version>1.18.24</lombok.version>
         <hutool.version>5.8.8</hutool.version>
         <guava.version>31.1-jre</guava.version>
@@ -37,28 +44,30 @@
         <satoken.version>1.42.0</satoken.version>
     </properties>
 
-    <!-- 继承描述 -->
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>${springboot.version}</version>
-        <relativePath/>
-    </parent>
-
     <!-- 依赖描述 -->
     <dependencies>
 
-        <!-- Spring: https://spring.io/ -->
+        <!-- Spring Boot: https://spring.io/projects/spring-boot -->
         <dependency>
-            <!-- 用于处理 @ConfigurationProperties 注解(改注解可以读取 application 的内容)的元数据生成, 方便 IDE 提示 -->
+            <!-- Spring Boot 核心依赖 -->
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <!-- 引入 Spring Boot 的 Web 相关依赖, 支持 RESTful API 开发, 包含: Spring MVC(用于处理 HTTP 请求)、Jackson(用于 JSON 序列化)、Tomcat(默认内嵌的 Web 服务器) -->
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
             <!-- 提供 Spring AOP 面向切面编程功能, 用于实现日志或权限控制等横切逻辑 -->
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-spring-boot-starter</artifactId>
+            <version>${dubbo.version}</version>
         </dependency>
 
         <!-- Lombok: https://projectlombok.org/ -->
@@ -67,6 +76,13 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+
+        <!-- Commons Lang3: https://commons.apache.org/proper/commons-lang/ -->
+        <dependency>
+            <!-- Commons Lang3 是 Apache 提供的 Java 工具类库, 包含: StringUtils(字符串处理)、ObjectUtils(对象工具)、RandomStringUtils(随机字符串生成)-->
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <!-- Hutool: https://doc.hutool.cn/pages/index/ -->
@@ -85,21 +101,14 @@
             <version>${guava.version}</version>
         </dependency>
 
-        <!-- Commons Lang3: https://commons.apache.org/proper/commons-lang/ -->
-        <dependency>
-            <!-- Commons Lang3 是 Apache 提供的 Java 工具类库, 包含: StringUtils(字符串处理)、ObjectUtils(对象工具)、RandomStringUtils(随机字符串生成)-->
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-
         <!-- Sa-Token: https://sa-token.cc/doc.html#/ -->
         <dependency>
             <!-- Sa-Token 核心依赖 -->
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-core</artifactId>
-            <version>1.42.0</version>
+            <version>${satoken.version}</version>
         </dependency>
 
     </dependencies>
-    
+
 </project>

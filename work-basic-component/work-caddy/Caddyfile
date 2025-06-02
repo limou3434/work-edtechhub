@@ -2,7 +2,7 @@
 
 {$WCI_SITE_ADDRESS} { # 部署域名(生产环境替换)
     # 域名证书(生产环境打开)
-    # tls /etc/caddy/ssl/edtechhub.com.cn_bundle.crt /etc/caddy/ssl/edtechhub.com.cn.key
+    # tls /etc/caddy/ssl/edtechhub.com.cn/xxx.crt /etc/caddy/ssl/edtechhub.com.cn/xxx.key
 
     # 日志服务
     log {

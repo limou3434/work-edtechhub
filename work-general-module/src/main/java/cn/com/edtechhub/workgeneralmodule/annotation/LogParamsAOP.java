@@ -16,7 +16,7 @@ public class LogParamsAOP {
 
     @Around("@annotation(logParams)")
     public Object logMethodParams(ProceedingJoinPoint joinPoint, LogParams logParams) throws Throwable {
-        log.debug(">>> [LogParams] 执行前");
+        log.debug("[LogParams] >>> 触发参数方法日志过程注解 >>>");
         String className = joinPoint.getTarget().getClass().getSimpleName();
         String methodName = joinPoint.getSignature().getName();
         Object[] args = joinPoint.getArgs();
@@ -30,8 +30,8 @@ public class LogParamsAOP {
             sb.append("--> [").append(i).append("]: ").append(args[i]).append("\n");
         }
         Object result = joinPoint.proceed();
-        log.debug("服务调用过程检查\n{}==> {}", sb, result);
-        log.debug("<<< [LogParams] 执行后");
+        log.debug("[LogParams] 服务调用过程检查\n{}==> {}", sb, result);
+        log.debug("[LogParams] <<< 触发参数方法日志过程注解 <<<");
         return result; // 调用原方法
     }
 }

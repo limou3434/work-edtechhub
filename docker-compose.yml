@@ -342,6 +342,7 @@ services:
       COS_CLIENT_SECRET_KEY: ${COS_CLIENT_SECRET_KEY}
       COS_CLIENT_REGION: ${COS_CLIENT_REGION}
       COS_CLIENT_BUCKET: ${COS_CLIENT_BUCKET}
+      ALY_AI_API_KEY: ${ALY_AI_API_KEY}
 
   ## 前端服务
   work-collaborative-images-client:
