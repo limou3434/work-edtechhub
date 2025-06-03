@@ -22,6 +22,8 @@ services:
     working_dir: /etc/caddy/
     volumes:
       - "./work-basic-component/work-caddy/Caddyfile:/etc/caddy/Caddyfile" # 代理配置文件
+      # - "/etc/caddy/ssl/edtechhub.com.cn/wci.crt:/etc/caddy/ssl/edtechhub.com.cn/wci.crt:ro"
+      # - "/etc/caddy/ssl/edtechhub.com.cn/wci.key:/etc/caddy/ssl/edtechhub.com.cn/wci.key:ro"
     environment:
       WCI_SITE_ADDRESS: ${WCI_SITE_ADDRESS}
 
