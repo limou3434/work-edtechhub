@@ -26,6 +26,7 @@ services:
       # - "/etc/caddy/ssl/edtechhub.com.cn/wci.key:/etc/caddy/ssl/edtechhub.com.cn/wci.key:ro"
     environment:
       WCI_SITE_ADDRESS: ${WCI_SITE_ADDRESS}
+      WTS_SITE_ADDRESS: ${WTS_SITE_ADDRESS}
 
   work-mysql:
     # NOTE:
@@ -361,6 +362,18 @@ services:
       - work-network
     ports:
       - "3006:3000"
+
+  work-topic-selection-client:
+    build:
+      context: ./work-topic-selection/client/work-topic-selection-react/
+      dockerfile: Dockerfile
+    image: work-topic-selection-client:1.0.0
+    container_name: work-topic-selection-client
+    restart: no
+    networks:
+      - work-network
+    ports:
+      - "3007:3000"
 
 
 
