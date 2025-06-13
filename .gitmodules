@@ -43,3 +43,6 @@
 [submodule "work-user-server"]
 	path = work-user-server
 	url = ./work-user-server
+[submodule "work-topic-selection"]
+	path = work-topic-selection
+	url = git@github.com:limou3434/work-topic-selection.git

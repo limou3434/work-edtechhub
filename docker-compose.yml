@@ -267,22 +267,6 @@ services:
       - work-network
     command: tail -f /dev/null
 
-  ## 业务服务
-  work-user-server:
-    build:
-      context: ./work-user-server/work-user-service
-      dockerfile: Dockerfile
-    image: work-user-server:1.0.0
-    container_name: work-user-server
-    restart: no
-    networks:
-      - work-network
-    ports:
-      - "5001:5000" # 运行端口
-      - "50051:50050" # 测试端口(curl --header "Content-Type: application/json" http://127.0.0.1:50051/cn.com.edtechhub.workuserserver.api.UserService/test/)
-    environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
-
   ## 公司项目
   work-user-centre:
     build:
@@ -346,6 +330,25 @@ services:
       COS_CLIENT_BUCKET: ${COS_CLIENT_BUCKET}
       ALY_AI_API_KEY: ${ALY_AI_API_KEY}
 
+  work-topic-selection:
+    build:
+      context: ./work-topic-selection/
+      dockerfile: Dockerfile
+    image: work-topic-selection:1.0.0
+    container_name: work-topic-selection
+    restart: no
+    networks:
+      - work-network
+    ports:
+      - "8007:8000"
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      COS_CLIENT_HOST: ${COS_CLIENT_HOST}
+      COS_CLIENT_SECRET_ID: ${COS_CLIENT_SECRET_ID}
+      COS_CLIENT_SECRET_KEY: ${COS_CLIENT_SECRET_KEY}
+      COS_CLIENT_REGION: ${COS_CLIENT_REGION}
+      COS_CLIENT_BUCKET: ${COS_CLIENT_BUCKET}
+
   ## 前端服务
   work-collaborative-images-client:
     build:
@@ -358,3 +361,55 @@ services:
       - work-network
     ports:
       - "3006:3000"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#  ## 业务服务
+#  work-user-server:
+#    build:
+#      context: ./work-user-server/work-user-service
+#      dockerfile: Dockerfile
+#    image: work-user-server:1.0.0
+#    container_name: work-user-server
+#    restart: no
+#    networks:
+#      - work-network
+#    ports:
+#      - "5001:5000" # 运行端口
+#      - "50051:50050" # 测试端口(curl --header "Content-Type: application/json" http://127.0.0.1:50051/cn.com.edtechhub.workuserserver.api.UserService/test/)
+#    environment:
+#      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
