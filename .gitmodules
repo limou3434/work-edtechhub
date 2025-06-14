@@ -46,3 +46,6 @@
 [submodule "work-topic-selection"]
 	path = work-topic-selection
 	url = git@github.com:limou3434/work-topic-selection.git
+[submodule "work-basic-component"]
+	path = work-basic-component
+	url = git@github.com:limou3434/work-basic-component.git

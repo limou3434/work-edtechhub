@@ -1,5 +1,0 @@
-# 配置日志
-logging:
-  level:
-    # root: DEBUG # 如果需要仔细调试可以打开这个选项
-    cn.com.edtechhub.workgeneralmodule: DEBUG # 控制本项目包内的日志输出等级 TRACE | DEBUG | INFO | WARN | ERROR | FATAL
