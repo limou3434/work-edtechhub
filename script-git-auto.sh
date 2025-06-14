@@ -14,6 +14,7 @@ echo "[START] $(date) 自动同步开始" | tee -a "$LOG_FILE"
 
 # 子模块同步部分
 git submodule foreach --recursive "
+  echo \">>> [\$name] >>>\"
   echo \"[INFO] 正在处理子模块: \$name\" | tee -a \"../$LOG_FILE\"
   cd \"\$toplevel/\$path\" || exit 1
 
@@ -30,6 +31,7 @@ git submodule foreach --recursive "
   else
     echo \"[ERROR] 子模块 \$name pull 失败\" >> \"../$ERR_FILE\"
   fi
+  echo \"<<< [\$name] <<<\"
 "
 
 # 父模块同步部分
