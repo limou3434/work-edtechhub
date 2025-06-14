@@ -9,7 +9,7 @@ networks:
 services:
   ## 基础服务
   work-caddy:
-    # NOTE: 整个公司项目的网关层, 所有的请求都会引导到这里在分流给其他服务
+    # 整个公司项目的网关层, 所有的请求都会引导到这里在分流给其他服务
     image: caddy:2.10.0
     container_name: work-caddy
     restart: always
@@ -22,16 +22,15 @@ services:
     working_dir: /etc/caddy/
     volumes:
       - "./work-basic-component/work-caddy/Caddyfile:/etc/caddy/Caddyfile" # 代理配置文件
-      # - "/etc/caddy/ssl/edtechhub.com.cn/wci.crt:/etc/caddy/ssl/edtechhub.com.cn/wci.crt:ro"
-      # - "/etc/caddy/ssl/edtechhub.com.cn/wci.key:/etc/caddy/ssl/edtechhub.com.cn/wci.key:ro"
-      # - "/etc/caddy/ssl/edtechhub.com.cn/wts.crt:/etc/caddy/ssl/edtechhub.com.cn/wts.crt:ro"
-      # - "/etc/caddy/ssl/edtechhub.com.cn/wts.key:/etc/caddy/ssl/edtechhub.com.cn/wts.key:ro"
+      - "/etc/caddy/ssl/edtechhub.com.cn/wci.crt:/etc/caddy/ssl/edtechhub.com.cn/wci.crt:ro"
+      - "/etc/caddy/ssl/edtechhub.com.cn/wci.key:/etc/caddy/ssl/edtechhub.com.cn/wci.key:ro"
+      - "/etc/caddy/ssl/edtechhub.com.cn/wts.crt:/etc/caddy/ssl/edtechhub.com.cn/wts.crt:ro"
+      - "/etc/caddy/ssl/edtechhub.com.cn/wts.key:/etc/caddy/ssl/edtechhub.com.cn/wts.key:ro"
     environment:
       WCI_SITE_ADDRESS: ${WCI_SITE_ADDRESS}
       WTS_SITE_ADDRESS: ${WTS_SITE_ADDRESS}
 
   work-mysql:
-    # NOTE:
     image: mysql:8.0.41
     container_name: work-mysql
     restart: always
@@ -112,7 +111,7 @@ services:
      - standalone
 
   work-sentinel:
-    # NOTE: 由于官方没有制作为镜像文件因此需要我们自己制作
+    # 由于官方没有制作为镜像文件因此需要我们自己制作
     build:
       context: ./work-basic-component/work-sentinel/
       dockerfile: Dockerfile
@@ -129,6 +128,7 @@ services:
       - java -Dserver.port=8131 -Dsentinel.dashboard.auth.username=sentinel -Dsentinel.dashboard.auth.password=$WORK_SENTINEL_PASSWD -Dserver.servlet.session.timeout=86400 -jar app.jar
 
   work-ollama:
+    # 需要容器支持显卡驱动
     # $ curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey \
     #    | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
     # $ curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list \
