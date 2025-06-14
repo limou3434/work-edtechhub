@@ -4,4 +4,4 @@
 **target/
 **dist/
 **.env
-**access.log
+**.log
