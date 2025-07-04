@@ -129,6 +129,7 @@ services:
 
   work-ollama:
     # 需要容器支持显卡驱动
+    # 首先机器要有显卡、安装了显卡驱动、查询 prime-select query 结果为 nvidia(否则就需要设置 sudo prime-select nvidia 后 sudo reboot 进行重启)
     # $ curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey \
     #    | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
     # $ curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list \
