@@ -49,3 +49,9 @@
 [submodule "work-basic-component"]
 	path = work-basic-component
 	url = git@github.com:limou3434/work-basic-component.git
+[submodule "work-mcp-server"]
+	path = work-mcp-server
+	url = git@github.com:limou3434/work-mcp-server.git
+[submodule "work-date-alive"]
+	path = work-date-alive
+	url = git@github.com:limou3434/work-date-alive.git
